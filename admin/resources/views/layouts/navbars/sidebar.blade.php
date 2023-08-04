@@ -36,8 +36,8 @@ Tip 2: you can also add an image using data-image tag
                     <p>{{ __("Requests") }}</p>
                 </a>
             </li>
-            <li class="nav-item @if($activePage == 'request') active @endif">
-                <a class="nav-link" href="{{route('page.index', 'request')}}">
+            <li class="nav-item @if($activePage == 'loan_application') active @endif">
+                <a class="nav-link" href="{{route('page.index', 'loan_application')}}">
                 <i class="nc-icon nc-single-copy-04"></i>
                     <p>{{ __("Loan applications") }}</p>
                 </a>
