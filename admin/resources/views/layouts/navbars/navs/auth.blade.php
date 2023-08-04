@@ -38,7 +38,7 @@
                 <li class="nav-item">
                     <form id="logout-form" action="{{ route('logout') }}" method="POST">
                         @csrf
-                        <a class="text-danger" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="nc-icon nc-button-power"> </i>{{ __(' Log out') }} </a>
+                        <a class="text-danger" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="bi bi-box-arrow-right"> </i><small>{{ __(' LOG OUT') }}</small></a>
                     </form>
                 </li>
             </ul>

@@ -1,4 +1,4 @@
-@extends('layouts.app', ['activePage' => 'loan_application', 'title' => 'uprise sacco | Loan Applications', 'navName' => 'Loan applications', 'activeButton' => 'laravel'])
+@extends('layouts.app', ['activePage' => 'loan_repayment', 'title' => 'uprise sacco | Loan Repayments', 'navName' => 'Loan repayments', 'activeButton' => 'laravel'])
 
 @section('content')
     <div class="content">

@@ -2,6 +2,7 @@ package member;
 import java.io.*;
 import java.net.*;
 import java.sql.*;
+import java.util.*;
 
 public class Server {
     /* database variables */
@@ -131,9 +132,6 @@ public class Server {
                 List<Double> finalLoanAmounts = new ArrayList<>();
                 List<Integer> applicationNos = new ArrayList<>();
                
-               
-                
-                
                 while (resultSet3.next()) {
                     loanamount = resultSet3.getInt("amount");
                     int memberId = resultSet3.getInt("member_ID");

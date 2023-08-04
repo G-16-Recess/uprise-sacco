@@ -13,44 +13,44 @@ Tip 2: you can also add an image using data-image tag
         <ul class="nav">
             <li class="nav-item @if($activePage == 'dashboard') active @endif">
                 <a class="nav-link" href="{{route('dashboard')}}">
-                    <i class="nc-icon nc-chart-pie-35"></i>
+                    <i class="bi bi-microsoft"></i>
                     <p>{{ __("Dashboard") }}</p>
                 </a>
             </li>
            
             <li class="nav-item @if($activePage == 'member') active @endif">
                 <a class="nav-link" href="{{route('page.index', 'member')}}">
-                <i class="nc-icon nc-single-02"></i>
+                    <i class="bi bi-people-fill"></i>
                     <p>{{ __("Members") }}</p>
                 </a>
             </li>
             <li class="nav-item @if($activePage == 'deposit') active @endif">
                 <a class="nav-link" href="{{route('page.index', 'deposit')}}">
-                    <i class="nc-icon nc-money-coins"></i>
+                    <i class="bi bi-cash-coin"></i>
                     <p>{{ __("Deposits") }}</p>
                 </a>
             </li>
             <li class="nav-item @if($activePage == 'request') active @endif">
                 <a class="nav-link" href="{{route('page.index', 'request')}}">
-                <i class="nc-icon nc-bell-55"></i>
+                    <i class="bi bi-question-circle-fill"></i>
                     <p>{{ __("Requests") }}</p>
                 </a>
             </li>
             <li class="nav-item @if($activePage == 'loan_application') active @endif">
                 <a class="nav-link" href="{{route('page.index', 'loan_application')}}">
-                <i class="nc-icon nc-single-copy-04"></i>
-                    <p>{{ __("Loan applications") }}</p>
+                    <i class="bi bi-cash-stack"></i>
+                    <p> {{ __("Loan applications") }}</p>
                 </a>
             </li>
-            <li class="nav-item @if($activePage == 'request') active @endif">
-                <a class="nav-link" href="{{route('page.index', 'request')}}">
-                <i class="nc-icon nc-bell-55"></i>
+            <li class="nav-item @if($activePage == 'loan') active @endif">
+                <a class="nav-link" href="{{route('page.index', 'loan')}}">
+                    <i class="bi bi-coin"></i>
                     <p>{{ __("Loans") }}</p>
                 </a>
             </li>
-            <li class="nav-item @if($activePage == 'request') active @endif">
-                <a class="nav-link" href="{{route('page.index', 'request')}}">
-                <i class="nc-icon nc-bell-55"></i>
+            <li class="nav-item @if($activePage == 'loan_repayment') active @endif">
+                <a class="nav-link" href="{{route('page.index', 'loan_repayment')}}">
+                    <i class="bi bi-currency-exchange"></i>
                     <p>{{ __("Loan repayments") }}</p>
                 </a>
             </li>
