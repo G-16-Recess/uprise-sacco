@@ -64,6 +64,99 @@ public class Server {
     
 
     /* deposit method --Vanessa */
+    public static String checkReceipt(String memberid, String receiptno, Double amount, String date_Deposited) throws SQLException {
+        String query = "SELECT * FROM deposit WHERE memberid=?";
+        double dbamount = 0.0;
+        String dbreceiptno = "";
+        String dbdate_Deposited = "";
+    
+        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, memberid);
+    
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) { // Move the cursor to the first row (if it exists)
+                    dbamount = resultSet.getDouble("amount");
+                    dbreceiptno = resultSet.getString("receiptno");
+                    dbdate_Deposited = resultSet.getString("date_Deposited");
+    
+                    if (amount == dbamount && date_Deposited.equals(dbdate_Deposited) && receiptno.equals(dbreceiptno)) {
+                        return "Matching receiptno";
+                    } else {
+                        return "No matching receiptno";
+                    }
+                } else {
+                    return "No matching receiptno"; // No rows found in the ResultSet
+                }
+            }
+        }
+    }
+    
+    public static double getAccountBalance(String receiptno) throws SQLException {
+        double balance = 0.0;
+        String query = "SELECT m.account_balance " + 
+                       "FROM member m " + 
+                       "JOIN deposit d ON m.memberid = d.memberid " +  
+                       "WHERE d.receiptno = ?";
+    
+        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, receiptno);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    balance = resultSet.getDouble("account_balance");
+                }
+            }
+        }
+    
+        return balance;
+    }
+    
+
+
+    public static boolean performDeposit(Double amount, String date_Deposited, String receiptno)throws SQLException {
+        try {
+            double balance = getAccountBalance(receiptno);
+            double newBalance = balance + amount;
+            String updateQuery = "UPDATE member m " + 
+                     "JOIN deposit d ON m.memberid = d.memberid " + 
+                     "SET m.account_balance = ?, d.status = 'No deposit' " + 
+                     "WHERE d.receiptno = ?";
+            try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+              PreparedStatement statement = connection.prepareStatement(updateQuery)){
+                statement.setDouble(1, newBalance);
+                statement.setString(2, receiptno);
+                statement.executeUpdate();
+            }
+
+            // Log the successful deposit and return true
+            System.out.println("Deposit successful");
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // If there's an error, log the failure and return false
+            System.out.println("Deposit not successful");
+            return false;
+        }
+    }
+    
+    public static String getmemberid(String username, String password) throws SQLException {
+        String dquery = "SELECT memberid FROM member WHERE username = ? AND password = ?";
+        String dbmemberid = "";
+
+        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement statement = connection.prepareStatement(dquery)) {
+            statement.setString(1, username);
+            statement.setString(2, password);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    dbmemberid = resultSet.getString("memberid");
+                }
+            }
+        }
+        return dbmemberid;
+    }
 
     /* checkStatement --pius */
 
