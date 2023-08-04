@@ -259,6 +259,53 @@ public class Server {
            
 
     /* loan request status -- taras */
+    public static void checkLoanStatus(String applicationNumber) {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                "SELECT status FROM loan_application WHERE application_id = ?"
+            );
+            preparedStatement.setString(1, applicationNumber);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                String status = resultSet.getString("status");
+                if (status.equalsIgnoreCase("approved")) {
+                    System.out.println("Congratulations! Your loan application is approved.");
+                    System.out.print("Do you want to accept the loan? (yes/no): ");
+                    try (Scanner Scanner = new Scanner(System.in)) {
+                        String response = Scanner.nextLine();
+                        if (response.equalsIgnoreCase("yes")) {
+                            // Perform the action to accept the loan
+                            System.out.println("You have accepted the loan. The amount will be transferred to your account.");
+                        }
+                       else if (response.equalsIgnoreCase("no")) {
+                            // Perform the action to accept the loan
+                            System.out.println("You have rejected the loan.");
+                        }
+                        else {
+                            // Perform the action to reject the loan
+                            System.out.println("you have entered an invalid input, please try again.");
+                        }
+                    }
+                } else if (status.equalsIgnoreCase("pending")) {
+                    System.out.println("Your loan application is still pending. Please wait for further updates.");
+                } else {
+                    System.out.println("Your loan application is rejected.");
+                }
+            } else {
+                System.out.println("Loan application not found. Please check your application number.");
+            }
+
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+        } catch (Exception e) {
+            System.out.println("MySQL JDBC Driver not found or other database error occurred.");
+            e.printStackTrace();
+        }
+    }
 
     public static void main(String[] args) {
         try {
