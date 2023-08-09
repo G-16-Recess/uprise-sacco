@@ -159,7 +159,75 @@ public class Server {
     }
 
     /* checkStatement --pius */
+    public static void checkstatement(int userId, String datefrom, String dateto, PrintWriter out) {
+        try {
+            Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            String depositquery = "SELECT * FROM deposits WHERE depositDate BETWEEN '" + datefrom + "' AND '" + dateto + "' AND member_ID = " + userId;
+            String loanquery = "SELECT * FROM loan WHERE loandepositdate BETWEEN '" + datefrom + "' AND '" + dateto + "' AND member_ID = " + userId +"";
+            String percentagequery = "SELECT member_ID, COUNT(*) AS depositsTimes, SUM(amount) AS totalAmountDeposited " + "FROM deposits " + "GROUP BY member_ID ";
+            String loanpercentagequery = "SELECT member_ID, COUNT(*) AS loandepositTimes, SUM(amountdeposited) AS loanamountdeposited " + 
+           "FROM loan " +
+           "GROUP BY member_ID";
 
+           Statement statement = connection.createStatement();
+           ResultSet depositcontribution = statement.executeQuery(depositquery);
+            while (depositcontribution.next()) {
+                String depositDate = depositcontribution.getString("depositDate");
+                int amount = depositcontribution.getInt("amount");
+                int totalAmount = 0;
+                totalAmount = 0 + amount;
+                out.println("Deposit Date: " + depositDate +"\n");
+                out.println("Amount: " + amount + "\n");
+                out.println("contribution is: " + totalAmount + "\n");
+            }
+
+            ResultSet loancontribution = statement.executeQuery(loanquery);
+
+            while(loancontribution.next()) {
+                String loandepositDate = loancontribution.getString("loandepositdate");
+                int amountdeposited = loancontribution.getInt("amountdeposited");
+                out.println("loan Datedeposit: " + loandepositDate + "\n");
+                out.println("amountdeposited: " + amountdeposited + "\n");
+            }
+
+            ResultSet percentageResult = statement.executeQuery(percentagequery);
+                while(percentageResult.next()){
+                int member_ID= percentageResult.getInt("member_ID");
+                if(userId == member_ID){
+                    int depositsTimes = percentageResult.getInt("depositsTimes");
+                    int totalAmountDeposited = percentageResult.getInt("totalAmountDeposited");
+                    double percentage = (double) depositsTimes / 12 * 100;
+                    out.println("totalAmountDepositedonloan: " +totalAmountDeposited + "\n");
+                    out.println("depositsTimes: " + depositsTimes + "\n");
+                    out.println("percentage contribution: " + percentage + "\n");
+                }
+            }
+           ResultSet loanPercentageResult = statement.executeQuery(loanpercentagequery);
+            while(loanPercentageResult.next()){
+                int member_ID= loanPercentageResult.getInt ("member_ID");
+                if(userId == member_ID){
+                    int loandepositTimes = loanPercentageResult.getInt("loandepositTimes");
+                    int loanamountdeposited = loanPercentageResult.getInt("loanamountdeposited");
+                    double percentage;
+                    percentage = (double)loandepositTimes / 12*100;
+
+                    out.println("loanmountDeposited: " + loanamountdeposited + "\n");
+                    out.println("percentage contribution loan: " + percentage + "\n");
+              
+                    System.out.println();
+
+                }
+            }
+           depositcontribution.close();
+           loancontribution.close();
+           percentageResult.close();
+           loanPercentageResult.close();
+           statement.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            
+        }
+    }
     /* loan request -- allan */
     public static int requestLoan(int memberID, int amount, int repayment_period) {
         try {
