@@ -17,6 +17,7 @@
                                     <th>Salary</th>
                                     <th>Country</th>
                                     <th>City</th>
+                                    <th class="text-center">Actions</th>
                                 </thead>
                                 <tbody>
                                     @foreach ($members as $member)
@@ -27,8 +28,8 @@
                                             <td>{{$member['accountbalance']}}</td>
                                             <td>{{$member['loanbalance']}}</td>
                                             <td>
-                                                <button class="btn btn-success btn-sm mx-2">Edit</button>
-                                                <button class="btn btn-success btn-sm">Approve</button>
+                                                <button class="btn btn-outline-success btn-sm mx-2">Edit</button>
+                                                <button class="btn btn-outline-success btn-sm">Approve</button>
                                             </td>
                                         </tr>
                                     @endforeach

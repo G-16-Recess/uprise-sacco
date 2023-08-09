@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Member;
 
 class PageController extends Controller
 {
@@ -11,15 +12,6 @@ class PageController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    private static function getMembers () {
-        return [
-            ['id'=> 1, 'username' => 'erwakasiisi@gmail.com', 'phonenumber' => '+256756342045', 'accountbalance' => 0.00, 'loanbalance' => 2000.00],
-            ['id'=> 2, 'username' => 'taras@gmail.com', 'phonenumber' => '+256755343045', 'accountbalance' => 0.00, 'loanbalance' => 2000.00],
-            ['id'=> 3, 'username' => 'vanessa@gmail.com', 'phonenumber' => '+256756342045', 'accountbalance' => 0.00, 'loanbalance' => 2000.00],
-            ['id'=> 4, 'username' => 'steka@gmail.com', 'phonenumber' => '+256756342045', 'accountbalance' => 0.00, 'loanbalance' => 2000.00],
-            ['id'=> 5, 'username' => 'allan@gmail.com', 'phonenumber' => '+256756342045', 'accountbalance' => 0.00, 'loanbalance' => 2000.00]
-        ];
-    }
 
     private static function getDeposits () {
         return [
@@ -34,8 +26,9 @@ class PageController extends Controller
 
     public function index($page)
     {
+        $members = Member::all();
         if (view()->exists("pages.{$page}")) {
-            return view("pages.{$page}", ['members'=>self::getMembers(),'deposits'=>self::getDeposits()]);
+            return view("pages.{$page}", ['members'=>$members,'deposits'=>self::getDeposits()]);
         }
         return abort(404);
     }
