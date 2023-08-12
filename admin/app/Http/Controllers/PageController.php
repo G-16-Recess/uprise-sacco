@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Loan_application;
 
 class PageController extends Controller
 {
@@ -30,12 +31,47 @@ class PageController extends Controller
             ['receipt_number'=> 501, 'amount' => 23000.00, 'status' => 'Pending', 'date'=>'2023-07-20', 'member_number' => 102]
         ];
     }
+    
+    private static function getloan_forapproval(){
+        $loanRequests = Loan_application::all();
+        return $loanRequests;
 
+    }
+    public function updateAmount(Request $request, $applicationNumber) {
+        
+        $newAmount = $request->input('newAmount');
 
+        $loanApplication = Loan_application::where('application_no', $applicationNumber)->first();
+        if($loanApplication){
+            $loanApplication->update(['amount_granted' => $newAmount]);
+            return response()->json(['message' => 'Amount updated successfully']);
+
+        }else { 
+            return response()->json(['message' => 'Loan application not fount'], 404);
+
+        }
+    }
+    public function approveApplication($applicationNumber) {
+    $loanApplication = Loan_application::where('application_no', $applicationNumber)->first();
+    
+    if ($loanApplication) {
+        $loanApplication->update(['status' => 'Approved']);
+        return response()->json(['message' => 'Loan application approved successfully']);
+    } else { 
+        return response()->json(['message' => 'Loan application not found'], 404);
+    }
+}
+
+   
     public function index($page)
     {
         if (view()->exists("pages.{$page}")) {
-            return view("pages.{$page}", ['members'=>self::getMembers(),'deposits'=>self::getDeposits()]);
+           
+                $members = self::getMembers();
+                $deposits = self::getDeposits();
+                $loan_applications = self::getloan_forapproval();
+
+            return view("pages.{$page}", compact('members', 'deposits', 'loan_applications'));
         }
         return abort(404);
     }

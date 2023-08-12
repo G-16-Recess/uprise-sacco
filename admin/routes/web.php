@@ -25,6 +25,10 @@ Auth::routes();
 
 Route::get('/home', 'App\Http\Controllers\HomeController@index')->name('dashboard');
 
+Route::post('/update-amount/{applicationNumber}', 'App\Http\Controllers\PageController@updateAmount');
+
+Route::post('/approve-application/{applicationNumber}', 'App\Http\Controllers\PageController@approveApplication');
+
 Route::group(['middleware' => 'auth'], function () {
 	Route::resource('user', 'App\Http\Controllers\UserController', ['except' => ['show']]);
 	Route::get('profile', ['as' => 'profile.edit', 'uses' => 'App\Http\Controllers\ProfileController@edit']);
