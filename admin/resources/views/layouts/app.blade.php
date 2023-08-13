@@ -188,7 +188,7 @@
                     var rowToUpdate = $('#dataTable tbody tr[data-application-number="' + applicationNumber + '"]');
                     rowToUpdate.find('.status').text('Approved');
 
-                    approveButton.addClass('approved-btn');
+                    approveButton.text('Approved');
 
                    var approvalMessage = $('#approval-message');
                    approvalMessage.text('Loan application approved successfully');
