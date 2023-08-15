@@ -33,7 +33,7 @@ class PageController extends Controller
     }
     
     private static function getloan_forapproval(){
-        $loanRequests = Loan_application::all();
+        $loanRequests = Loan_application::where('status','processing')->get();
         return $loanRequests;
 
     }

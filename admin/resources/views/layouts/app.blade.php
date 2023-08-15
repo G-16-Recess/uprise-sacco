@@ -187,16 +187,17 @@
                     // Update the status cell with "Approved" text
                     var rowToUpdate = $('#dataTable tbody tr[data-application-number="' + applicationNumber + '"]');
                     rowToUpdate.find('.status').text('Approved');
-
-                    approveButton.addClass('approved-btn');
-
+                   
+                    approveButton.text('Approved');
+                  
                    var approvalMessage = $('#approval-message');
                    approvalMessage.text('Loan application approved successfully');
                    approvalMessage.show(); 
-
+                   
    
                    setTimeout(function () {
                    approvalMessage.hide();
+                   
                  }, 3000); 
                 },
                 error: function (xhr, status, error) {
@@ -205,7 +206,7 @@
                 }
             });
         });
-    });
+    });   
 </script>
 
    
