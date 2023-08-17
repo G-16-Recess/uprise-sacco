@@ -17,23 +17,24 @@ public class Server {
     private static int amount_app;
     private static int repayment_period_app;
     private static int requestedAmount = 0;
+    private static int amount_granted = 0;
     private static int memberDeposit = 0;
     private static int total_deposits = 0; 
     private static  int loanamount = 0;
+    private static int application_number = 0;
     private static int total_loanrequested = 0;
     private static int member_ID;
     private static int accountBalance;
     private static int count = 0;
+    private static ResultSet loan_status =null;
     private static ResultSet resultSet1;
     private static ResultSet resultSet2;
     private static ResultSet resultSet3;
     private static ResultSet resultSet4;
-    private static ResultSet resultSet5;
-    private static ResultSet resultSet6;
-    private static ResultSet resultSet7;
-    private static Socket clientSocket;
+    private static ResultSet resultSet5 =null;
     private static ServerSocket serverSocket;
-
+    private static BufferedReader in;
+    private static PrintWriter out;
     /* login --edwin */
     public static boolean login(String username, String password) {
         try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
@@ -317,22 +318,26 @@ public class Server {
             statement = connection.createStatement();
             ResultSet loan_status = statement.executeQuery("SELECT status FROM loan_application WHERE application_number =      "+applicationNumber+"");
             if (loan_status.next()) {
-                String status = loan_status.getString("status");
-                if (status.equals("approved")) {
-                    System.out.println("Congratulations! Your loan application is approved.");
-                    System.out.print("Do you want to accept the loan? (yes/no): ");
-                    try (Scanner Scanner = new Scanner(System.in)) {
-                        String response = Scanner.nextLine();
+                 String status = loan_status.getString("status");
+                int memberID = loan_status.getInt("member_number");
+                if (status.equals("Approved")) {
+                    resultSet5 = statement.executeQuery("SELECT amount_granted FROM loan_application WHERE application_number=" +application_number);
+                    while (resultSet5.next()) {
+                       amount_granted = resultSet5.getInt("amount_granted");
+                       out.println("Congragulations your loan has been approved.Do you accept the loan of:"+amount_granted+ "? (yes/no):");                                                    
+                       
+                        String response = in.readLine();
                         if (response.equalsIgnoreCase("yes")) {
-                            // Perform the action to accept the loan
-                            System.out.println(
-                                    "You have accepted the loan. The amount will be transferred to your account.");
+                            statement.executeUpdate("UPDATE member SET loan_balance = loan_balance+" +amount_granted  +" WHERE member_number ="+memberID);
+                            out.println("You have accepted the loan. The amount will be transferred to your account.");
+                            statement.executeUpdate("DELETE FROM loan_application WHERE application_number = " + applicationNumber);
                         } else if (response.equalsIgnoreCase("no")) {
-                            // Perform the action to accept the loan
-                            System.out.println("You have rejected the loan.");
+                            statement.executeUpdate("DELETE FROM loan_application WHERE application_number = " + applicationNumber);
+                            out.println("You have rejected the loan.");
+                           
                         } else {
                             // Perform the action to reject the loan
-                            System.out.println("you have entered an invalid input, please try again.");
+                            out.println("you have entered an invalid input, please try again.");
                         }
                     }
                 } else if (status.equals("pending")) {
@@ -343,7 +348,7 @@ public class Server {
                     out.println("Your loan application is rejected.");
                 }
             } else {
-                System.out.println("Loan application not found. Please check your application number.");
+                   out.println("Loan application not found. Please check your application number.");
             }
             connection.close();
         } catch (Exception e) {

@@ -20,20 +20,20 @@
                                     <th>Amount</th>
                                     <th>Amount Granted</th>
                                     <th>Repayment period</th>
-                                    <th>Status</th>
+                                 
                                 </thead>
                                 <tbody>
                                     @foreach ($loan_applications as $loan_application)
                                         <tr>
-                                            <td>{{$loan_application['application_no']}}</td>
-                                            <td>{{$loan_application['member_ID']}}</td>
+                                            <td>{{$loan_application['application_number']}}</td>
+                                            <td>{{$loan_application['member_number']}}</td>
                                             <td>{{$loan_application['amount']}}</td>
                                             <td class="amount_granted">{{$loan_application['amount_granted']}}</td>
                                             <td>{{$loan_application['repayment_period']}}</td>
-                                            <td>{{$loan_application['status']}}</td>
+                                   
                                             <td>
-                                                <button class="btn btn-success btn-sm mx-2 edit-btn" data-toggle="modal" data-target="#editModal" data-application-number="{{$loan_application['application_no']}}">Edit</button>
-                                                <button class="btn btn-success btn-sm approve-btn" data-application-number="{{$loan_application['application_no']}}">Approve</button>
+                                                <button class="btn btn-success btn-sm mx-2 edit-btn" data-toggle="modal" data-target="#editModal" data-application-number="{{$loan_application['application_number']}}">Edit</button>
+                                                <button class="btn btn-success btn-sm approve-btn" data-application-number="{{$loan_application['application_number']}}">Approve</button>
                                             </td>
                                         </tr>
                                     @endforeach
