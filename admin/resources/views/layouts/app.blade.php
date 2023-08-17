@@ -16,7 +16,6 @@
 
 <html lang="en">
     <head>
-        <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta charset="utf-8" />
         <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('light-bootstrap/img/logo/logo-no-background.png') }}">
         <link rel="icon" type="image/png" href="{{ asset('light-bootstrap/img/logo/logo-no-background.png') }}">
@@ -58,10 +57,10 @@
             </div>
 
         </div>
-     
-        
+       
+
+
     </body>
-    
         <!--   Core JS Files   -->
     <script src="{{ asset('light-bootstrap/js/core/jquery.3.2.1.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('light-bootstrap/js/core/popper.min.js') }}" type="text/javascript"></script>
@@ -136,93 +135,5 @@
           url: 'https://light-bootstrap-dashboard-laravel.creative-tim.com/login'
         });
       });
-    </script> 
-    <script>
-    $(document).ready(function() {
-        $('.edit-btn').click(function(){
-           var applicationNumber = $(this).data('application-number');
-           $('#applicationNumber').val(applicationNumber);
-           $('#editModal').modal('show');
-        });
-        $('#saveChanges').click(function() {
-            var applicationNumber = $('#applicationNumber').val();
-            var newAmount = $('#newAmount').val();
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });    
-        
-        $.ajax({
-          url : '/update-amount/' + applicationNumber,
-          method : 'POST',
-          data : {newAmount : newAmount},
-          success : function(response) {
-            console.log('New Amount:', newAmount);
-            console.log('Application Number:', applicationNumber);
-
-            $('#message').text('Amount updated Successfully');
-            setTimeout(function()  {
-              $('#editModal').modal('hide');
-
-              var rowToUpdate = $('#dataTable tbody tr[data-application-number="' +applicationNumber+ '"]');
-              rowToUpdate.find('.amount_granted').text(newAmount);
-            
-          }, 1500);
-          
-        }, 
-          error: function (xhr, status, error) {
-        console.log(xhr.responseText); // Log the detailed error response
-        alert('An error occurred while updating the amount');
-         
-          }
-        });
-      });
-    });
-   </script>
-   <script>
-    $(document).ready(function () {
-        $('.approve-btn').click(function () {
-            var applicationNumber = $(this).data('application-number');
-            var approveButton = $(this);
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-
-            $.ajax({
-                url: '/approve-application/' + applicationNumber,
-                method: 'POST',
-                success: function (response) {
-                    
-                    // Update the status cell with "Approved" text
-                    var rowToUpdate = $('#dataTable tbody tr[data-application-number="' + applicationNumber + '"]');
-                    rowToUpdate.find('.status').text('Approved');
-
-                    approveButton.text('Approved');
-
-                   var approvalMessage = $('#approval-message');
-                   approvalMessage.text('Loan application approved successfully');
-                   approvalMessage.show(); 
-
-   
-                   setTimeout(function () {
-                   approvalMessage.hide();
-                 }, 3000); 
-                },
-                error: function (xhr, status, error) {
-                    console.log(xhr.responseText); // Log the detailed error response
-                    alert('An error occurred while approving the loan application');
-                }
-            });
-        });
-    });
-</script>
-
-   
-    
+    </script>
 </html>
-
- <!--error : function() {
-   alert('An error occured while updating the amount');-->

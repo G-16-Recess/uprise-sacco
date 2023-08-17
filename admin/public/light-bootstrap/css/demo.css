@@ -49,9 +49,9 @@
 
 .fixed-plugin li>a,
 .fixed-plugin .badge {
-    -moz-transition: all .34s;
-    -webkit-transition: all .34s;
     transition: all .34s;
+    -webkit-transition: all .34s;
+    -moz-transition: all .34s;
 }
 
 .fixed-plugin {
@@ -316,9 +316,9 @@
     position: absolute;
     top: 65px;
     width: 16px;
-    -moz-transform: translateY(-50%);
-    -webkit-transform: translateY(-50%);
     transform: translateY(-50%);
+    -webkit-transform: translateY(-50%);
+    -moz-transform: translateY(-50%);
 }
 
 .fixed-plugin .dropdown-menu:before {
@@ -676,9 +676,9 @@
 }
 
 .animate {
-    -webkit-transition: 1.5s ease-in-out;
-    -moz-transition: 1.5s ease-in-out;
     transition: 1.5s ease-in-out;
+    -moz-transition: 1.5s ease-in-out;
+    -webkit-transition: 1.5s ease-in-out;
 }
 
 .navbar-default.navbar-small .logo-container .brand {
@@ -835,20 +835,4 @@
 .register-page .form-check .form-check-sign::after
 {
     color:#fff;
-}
-.approval-message {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 128, 0, 0.8);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            display: none;
-            z-index: 9999;
-        }
-        
-.approved-btn {
-    background-color: green; 
 }
