@@ -88,7 +88,7 @@ public class Server {
                     out.println("Receipt is already deposited.");
                 }
             } else {
-                out.println("Receipt doesn't exist");
+                out.println("Receipt doesn't exist. Try again after 24 hours");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -99,15 +99,19 @@ public class Server {
     public static void checkstatement(int userId, String datefrom, String dateto, PrintWriter out) {
         try {
             Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-            String depositquery = "SELECT * FROM deposits WHERE depositDate BETWEEN '" + datefrom + "' AND '" + dateto + "' AND member_ID = " + userId;
-            String loanquery = "SELECT * FROM loan WHERE loandepositdate BETWEEN '" + datefrom + "' AND '" + dateto + "' AND member_ID = " + userId +"";
-            String percentagequery = "SELECT member_ID, COUNT(*) AS depositsTimes, SUM(amount) AS totalAmountDeposited " + "FROM deposits " + "GROUP BY member_ID ";
-            String loanpercentagequery = "SELECT member_ID, COUNT(*) AS loandepositTimes, SUM(amountdeposited) AS loanamountdeposited " + 
+            String deposit_query = "SELECT * FROM deposit WHERE date BETWEEN '" + datefrom + "' AND '" + dateto + "' AND member_number = " + userId;
+            String loan_repayment_query = "SELECT * FROM loan_repayment WHERE date BETWEEN '" + datefrom + "' AND '" + dateto + "' AND member_number = " + userId +"";
+            String loan_progress_query = "SELECT * FROM loan WHERE member_number = "+userId+"";
+
+            /* 
+            String percentagequery = "SELECT member_number, COUNT(*) AS depositsTimes, SUM(amount) AS totalAmountDeposited " + "FROM deposit " + "GROUP BY member_number ";
+            String loanpercentagequery = "SELECT member_number, COUNT(*) AS loandepositTimes, SUM(amount) AS loanamountdeposited " + 
            "FROM loan " +
-           "GROUP BY member_ID";
+           "GROUP BY member_number";
+           */
 
            Statement statement = connection.createStatement();
-           ResultSet depositcontribution = statement.executeQuery(depositquery);
+           ResultSet depositcontribution = statement.executeQuery(deposit_query);
             while (depositcontribution.next()) {
                 String depositDate = depositcontribution.getString("depositDate");
                 int amount = depositcontribution.getInt("amount");
@@ -118,7 +122,7 @@ public class Server {
                 out.println("contribution is: " + totalAmount + "\n");
             }
 
-            ResultSet loancontribution = statement.executeQuery(loanquery);
+            ResultSet loancontribution = statement.executeQuery(loan_repayment_query);
 
             while(loancontribution.next()) {
                 String loandepositDate = loancontribution.getString("loandepositdate");
@@ -126,7 +130,7 @@ public class Server {
                 out.println("loan Datedeposit: " + loandepositDate + "\n");
                 out.println("amountdeposited: " + amountdeposited + "\n");
             }
-
+            /* 
             ResultSet percentageResult = statement.executeQuery(percentagequery);
                 while(percentageResult.next()){
                 int member_ID= percentageResult.getInt("member_ID");
@@ -139,6 +143,7 @@ public class Server {
                     out.println("percentage contribution: " + percentage + "\n");
                 }
             }
+            */
            ResultSet loanPercentageResult = statement.executeQuery(loanpercentagequery);
             while(loanPercentageResult.next()){
                 int member_ID= loanPercentageResult.getInt ("member_ID");
@@ -157,7 +162,7 @@ public class Server {
             }
            depositcontribution.close();
            loancontribution.close();
-           percentageResult.close();
+           /*percentageResult.close();*/
            loanPercentageResult.close();
            statement.close();
         } catch (Exception e) {
@@ -189,7 +194,6 @@ public class Server {
             if (no_of_available_requests == 10) {
                 String changeStatus = "UPDATE loan_application SET status = 'processing' WHERE status = 'pending'";
                 statement.executeUpdate(changeStatus);
-                loandistributionandapproval();
             }
             // Close the resources
             resultSet1.close();
@@ -475,6 +479,7 @@ public class Server {
                             break;
                         case "CheckStatement":
                             if (isLoggedIn) {
+                                checkstatement(member_id, command[1], command[2],out);
                                 /* call the CheckStatement method here */
                             } else {
                                 out.println("You must log in first to perform this operation.");

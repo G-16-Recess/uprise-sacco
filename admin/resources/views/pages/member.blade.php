@@ -5,7 +5,14 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
-                    <div class="card strpied-tabled-with-hover">
+                    @if(session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ session('success') }}
+                            <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+                    
+                    <div class="card">
                         <div class="card-header d-flex">
                             <button type="button" class="btn btn-sm bg-warning" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="bi bi-filetype-csv"> </i>Upload members</button> 
                         </div>
@@ -45,10 +52,10 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form>
+                    <form method="post" action="" enctype="multipart/form-data">
                         @csrf
                         <div class="mb-3">
-                            <input class="form-control form-control-sm border-0 outline-0" type="file" name="csv_file">
+                            <input class="form-control form-control-sm border-0 outline-0" type="file" name="csv_file" id="csv_file">
                         </div>
                         <div class="mb-2">
                             <button type="reset" class="btn btn-secondary btn-sm">Cancel</button>
