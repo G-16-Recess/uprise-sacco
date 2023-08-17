@@ -34,7 +34,7 @@ class PageController extends Controller
         
         $newAmount = $request->input('newAmount');
 
-        $loanApplication = Loan_application::where('application_no', $applicationNumber)->first();
+        $loanApplication = Loan_application::where('application_number', $applicationNumber)->first();
         if($loanApplication){
             $loanApplication->update(['amount_granted' => $newAmount]);
             return response()->json(['message' => 'Amount updated successfully']);
@@ -45,7 +45,7 @@ class PageController extends Controller
         }
     }
     public function approveApplication($applicationNumber) {
-    $loanApplication = Loan_application::where('application_no', $applicationNumber)->first();
+    $loanApplication = Loan_application::where('application_number', $applicationNumber)->first();
     
     if ($loanApplication) {
         $loanApplication->update(['status' => 'Approved']);

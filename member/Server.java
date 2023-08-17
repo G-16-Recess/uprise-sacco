@@ -35,8 +35,6 @@ public class Server {
     private static ResultSet resultSet4;
     private static ResultSet resultSet5 =null;
     private static ServerSocket serverSocket;
-    private static BufferedReader in;
-    private static PrintWriter out;
 
     /* login --edwin */
     public static boolean login(String username, String password) {
@@ -362,14 +360,11 @@ public class Server {
             ResultSet loan_status = statement.executeQuery("SELECT status FROM loan_application WHERE application_number = "+applicationNumber+"");
             if (loan_status.next()) {
                 String status = loan_status.getString("status");
-                int memberID = loan_status.getInt("member_number");
-                if (status.equals("Approved")) {
-                    resultSet5 = statement.executeQuery("SELECT amount_granted FROM loan_application WHERE application_number=" +application_number);
-                    while (resultSet5.next()) {
-                       amount_granted = resultSet5.getInt("amount_granted");
-                       out.println("Congragulations your loan has been approved.Do you accept the loan of:"+amount_granted+ "? (yes/no):");                                                    
-                       
-                        String response = in.readLine();
+                if (status.equals("approved")) {
+                    System.out.println("Congratulations! Your loan application is approved.");
+                    System.out.print("Do you want to accept the loan? (yes/no): ");
+                    try (Scanner Scanner = new Scanner(System.in)) {
+                        String response = Scanner.nextLine();
                         if (response.equalsIgnoreCase("yes")) {
                             statement.executeUpdate("UPDATE member SET loan_balance = loan_balance+" +amount_granted  +" WHERE member_number ="+memberID);
                             out.println("You have accepted the loan. The amount will be transferred to your account.");

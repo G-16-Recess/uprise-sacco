@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Loan_request_approval extends Model
 {
     //use HasFactory;
-    protected $table = 'loan_request_approvals';
-    protected $primaryKey = 'application_no';
-    /* Since member_number is not auto-incrementing, set this to false. */
+    protected $table = 'loan_application';
+    protected $primaryKey = 'application_number';
+    
     public $incrementing = false; 
-    protected $fillable = ['application_no', 'member_number', 'amount', 'repayment_period', 'status'];
+    protected $fillable = ['application_number', 'member_number', 'amount','amount_granted','repayment_period', 'status'];
+   
+    public $timestamps = false;
 }

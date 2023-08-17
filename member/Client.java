@@ -28,7 +28,7 @@ public class Client {
                     System.out.println(serverResponse);
                 } else {
                     System.out.println("Server response: " + serverResponse);
-                     
+                    
                      if (serverResponse.contains("Do you accept the loan ")) {
             String userResponse = in.readLine();
             out.println(userResponse); 
