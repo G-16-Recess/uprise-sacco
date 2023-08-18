@@ -201,14 +201,9 @@
                     rowToUpdate.find('.status').text('Approved');
                    
                     approveButton.text('Approved');
-                  
-                   var approvalMessage = $('#approval-message');
-                   approvalMessage.text('Loan application approved successfully');
-                   approvalMessage.show(); 
-                   
-   
+                
                    setTimeout(function () {
-                   approvalMessage.hide();
+                  location.reload();
                    
                  }, 3000); 
                 },
