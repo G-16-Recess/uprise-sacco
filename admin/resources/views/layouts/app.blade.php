@@ -164,7 +164,7 @@
             $('#message').text('Amount updated Successfully');
             setTimeout(function()  {
               $('#editModal').modal('hide');
-
+              location.reload();
               var rowToUpdate = $('#dataTable tbody tr[data-application-number="' +applicationNumber+ '"]');
               rowToUpdate.find('.amount_granted').text(newAmount);
             
