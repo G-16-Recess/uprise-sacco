@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Member;
 use App\Models\Deposit;
 use App\Models\Loan_repayment;
+use App\Models\Loan_application;
 
 class PageController extends Controller
 {
@@ -25,11 +26,6 @@ class PageController extends Controller
         ];
     }
     
-    private static function getloan_forapproval(){
-        $loanRequests = Loan_application::where('status','processing')->get();
-        return $loanRequests;
-
-    }
     public function updateAmount(Request $request, $applicationNumber) {
         
         $newAmount = $request->input('newAmount');
@@ -61,8 +57,9 @@ class PageController extends Controller
         $members = Member::all();
         $deposits = Deposit::all();
         $repayments = Loan_repayment::all();
+        $loan_requests = Loan_application::where('status','processing')->get();
         if (view()->exists("pages.{$page}")) {
-            return view("pages.{$page}", ['members'=>$members,'deposits'=>$deposits,'repayments'=>$repayments]);
+            return view("pages.{$page}", ['members'=>$members,'deposits'=>$deposits,'repayments'=>$repayments,'loan_applications'=>$loan_requests]);
         }
         return abort(404);
     }

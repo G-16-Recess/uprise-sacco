@@ -5,10 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Loan_request_approval extends Model
+class Loan_application extends Model
 {
-    //use HasFactory;
-    protected $table = 'loan_application';
+   //use HasFactory;
+    protected $table = 'loan_applications';
     protected $primaryKey = 'application_number';
     
     public $incrementing = false; 
