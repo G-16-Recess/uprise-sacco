@@ -178,6 +178,9 @@
           }
         });
       });
+         $('#closebutton').click(function() {
+        location.reload();
+    });
     });
    </script>
    <script>
