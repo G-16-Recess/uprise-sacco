@@ -178,7 +178,10 @@
           }
         });
       });
-         $('#closebutton').click(function() {
+         $('#closebutton1').click(function() {
+        location.reload();
+    });
+          $('#closebutton2').click(function() {
         location.reload();
     });
     });
