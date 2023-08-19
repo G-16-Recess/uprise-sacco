@@ -49,7 +49,7 @@
         <div class="modal-content">
            <div class="modal-header">
             <h5 class="modal-title" id="editModalLabel">Edit Loan Amount </h5>
-            <button type="button" class="close" id="closebutton" data-dismiss="modal" aria-label="Close">
+            <button type="button" class="close" id="closebutton1" data-dismiss="modal" aria-label="Close">
              <span aria-hidden="true">&times;</span>
             </button>
            </div> 
@@ -64,7 +64,7 @@
              </form>
            </div>
            <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" id="closebutton" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary" id="closebutton2" data-dismiss="modal">Close</button>
             <button type="button" class="btn btn-primary" id="saveChanges">Save Changes</button>             
            </div>
          </div> 
