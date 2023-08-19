@@ -181,18 +181,18 @@ public class Server {
             application_no = 1000 + random.nextInt(9999);
 
             /* sql to handle loan request-- */
-            String sql = "INSERT INTO loan_application(application_number,member_number, amount, repayment_period) VALUES("
+            String sql = "INSERT INTO loan_applications(application_number,member_number, amount, repayment_period) VALUES("
                     + application_no + "," + memberID + "," + amount + "," + repayment_period + ")";
             statement.executeUpdate(sql);
 
-            resultSet1 = statement.executeQuery("SELECT COUNT(application_number) FROM loan_application WHERE status='pending'");
+            resultSet1 = statement.executeQuery("SELECT COUNT(application_number) FROM loan_applications WHERE status='pending'");
             int no_of_available_requests = 0;
 
             if (resultSet1.next()) {
                 no_of_available_requests = resultSet1.getInt("COUNT(application_number)");
             }
             if (no_of_available_requests == 10) {
-                String changeStatus = "UPDATE loan_application SET status = 'processing' WHERE status = 'pending'";
+                String changeStatus = "UPDATE loan_applications SET status = 'processing' WHERE status = 'pending'";
                 statement.executeUpdate(changeStatus);
             }
             // Close the resources
@@ -220,7 +220,7 @@ public class Server {
             }
             if (available_funds > 2000000) {
                 resultSet3 = statement
-                        .executeQuery("SELECT * FROM loan_application WHERE status = 'processing'");
+                        .executeQuery("SELECT * FROM loan_applications WHERE status = 'processing'");
                 List<Integer> loanRequests = new ArrayList<>();
                 List<Integer> memberIDs = new ArrayList<>();
                 List<Integer> memberIndices = new ArrayList<>();
@@ -243,7 +243,7 @@ public class Server {
                     memberIndices.add(memberIDs.size() - 1);
                 }
                 resultSet4 = statement.executeQuery(
-                        "SELECT member_number,account_balance FROM member WHERE member_number IN (SELECT member_number FROM loan_application WHERE status = 'processing')");
+                        "SELECT member_number,account_balance FROM member WHERE member_number IN (SELECT member_number FROM loan_applications WHERE status = 'processing')");
 
                 while (resultSet4.next()) {
                     member_ID = resultSet4.getInt("member_number");
@@ -279,9 +279,7 @@ public class Server {
                     double finalLoanAmount = finalLoanAmounts.get(i);
                     int repaymentPeriod = repaymentPeriods.get(i);
 
-                    String updateLoanQuery = "INSERT INTO loan_request_approval(application_number, member_number, amount, repayment_period) VALUES("
-                            + applicationNo + "," + memberId + "," + finalLoanAmount + "," + repaymentPeriod + ")";
-
+                   String updateLoanQuery = "UPDATE loan_application SET amount_granted="+finalLoanAmount+"WHERE application_number="+applicationNo;
                     statement.executeUpdate(updateLoanQuery);
                 }
 
@@ -307,44 +305,6 @@ public class Server {
                     resultSet3.close();
                 if (resultSet4 != null)
                     resultSet4.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-    }
-
-    public static void view_generatedloanDistribution() {
-        try {
-            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-            statement = connection.createStatement();
-            String sql = "SELECT * FROM loan_request_approval";
-            resultSet5 = statement.executeQuery(sql);
-
-            while (resultSet5.next() && count < 10) {
-                application_number_app = resultSet5.getInt("application_number");
-                member_id_app = resultSet5.getInt("member_number");
-                amount_app = resultSet5.getInt("amount");
-                repayment_period_app = resultSet5.getInt("repayment_period");
-                System.out.println("Application number: " + application_number_app);
-                System.out.println("Member ID: " + member_id_app);
-                System.out.println("Amount: " + amount_app);
-                System.out.println("Repayment period: " + repayment_period_app);
-                System.out.println("----------------------------");
-                count++;
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-
-            try {
-                if (resultSet5 != null)
-                    resultSet5.close();
-                if (statement != null)
-                    statement.close();
-                if (connection != null)
-                    connection.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
