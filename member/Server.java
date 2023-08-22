@@ -171,49 +171,55 @@ public class Server {
         }
     }
     /* loan request -- allan */
-    public static int requestLoan(int memberID, double amount, int repayment_period) {
+       public static int requestLoan(int memberID, int amount, int repayment_period) {
         try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
             statement = connection.createStatement();
-
-            /* generate a random application_no value-- */
+            
+            
             Random random = new Random();
             application_no = 1000 + random.nextInt(9999);
 
-            /* sql to handle loan request-- */
+            
             String sql = "INSERT INTO loan_applications(application_number,member_number, amount, repayment_period) VALUES("
                     + application_no + "," + memberID + "," + amount + "," + repayment_period + ")";
             statement.executeUpdate(sql);
-
-            resultSet1 = statement.executeQuery("SELECT COUNT(application_number) FROM loan_applications WHERE status='pending'");
+                                   
+            resultSet1 = statement
+                    .executeQuery("SELECT COUNT(application_number) FROM loan_applications WHERE status='pending'");
             int no_of_available_requests = 0;
-
+        
             if (resultSet1.next()) {
                 no_of_available_requests = resultSet1.getInt("COUNT(application_number)");
             }
             if (no_of_available_requests == 10) {
                 String changeStatus = "UPDATE loan_applications SET status = 'processing' WHERE status = 'pending'";
                 statement.executeUpdate(changeStatus);
+
+                loandistributionandapproval();
             }
             // Close the resources
-            resultSet1.close();
-            statement.close();
-            connection.close();
+        resultSet1.close();
+        statement.close();
+        connection.close();      
 
         } catch (Exception e) {
             e.printStackTrace();
         }
         return application_no;
-    }
-
-    public static void loandistributionandapproval() {
-        try {
+    }   
+     
+          public static void loandistributionandapproval(){ 
+     try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
             statement = connection.createStatement();
 
             resultSet2 = statement.executeQuery(
-                    "SELECT SUM(account_balance),SUM(loan_balance),SUM(account_balance) - SUM(loan_balance) AS difference FROM member");
+                    "SELECT SUM(account_balance),SUM(loan_balance),SUM(account_balance) - SUM(loan_balance) AS difference FROM members");
             int available_funds = 0;
+
 
             if (resultSet2.next()) {
                 available_funds = resultSet2.getInt("difference");
@@ -223,12 +229,15 @@ public class Server {
                         .executeQuery("SELECT * FROM loan_applications WHERE status = 'processing'");
                 List<Integer> loanRequests = new ArrayList<>();
                 List<Integer> memberIDs = new ArrayList<>();
-                List<Integer> memberIndices = new ArrayList<>();
-                Map<Integer, Integer> memberDeposits = new HashMap<>();
+                List<Integer> memberIndices = new ArrayList<>();  
+                Map<Integer, Integer> memberDeposits = new HashMap<>();           
                 List<Integer> repaymentPeriods = new ArrayList<>();
                 List<Double> finalLoanAmounts = new ArrayList<>();
                 List<Integer> applicationNos = new ArrayList<>();
-
+               
+               
+                
+                
                 while (resultSet3.next()) {
                     loanamount = resultSet3.getInt("amount");
                     int memberId = resultSet3.getInt("member_number");
@@ -241,120 +250,235 @@ public class Server {
                     loanRequests.add(loanamount);
                     total_loanrequested += loanamount;
                     memberIndices.add(memberIDs.size() - 1);
-                }
-                resultSet4 = statement.executeQuery(
-                        "SELECT member_number,account_balance FROM member WHERE member_number IN (SELECT member_number FROM loan_applications WHERE status = 'processing')");
+                }   
+                           
+                 resultSet4 = statement.executeQuery("SELECT member_number,account_balance FROM members WHERE member_number IN (SELECT member_number FROM loan_applications WHERE status = 'processing')");
+                                         
+  
+                        while (resultSet4.next()) {
+                            
 
-                while (resultSet4.next()) {
-                    member_ID = resultSet4.getInt("member_number");
-                    accountBalance = resultSet4.getInt("account_balance");
+                            member_ID = resultSet4.getInt("member_number");
+                            accountBalance = resultSet4.getInt("account_balance");
+                         
+                            memberDeposits.put(member_ID, accountBalance);
+                            total_deposits += accountBalance;
+                            
+                            }
+                             // destribute loan to members based on their requested loan,their deposit
+                         for (int i = 0; i < loanRequests.size(); i++) {
+                             requestedAmount = loanRequests.get(i);
+                             member_ID = memberIDs.get(i);
+                             int memberIndex = memberIndices.get(i); 
 
-                    memberDeposits.put(member_ID, accountBalance);
-                    total_deposits += accountBalance;
-
-                }
-                // destribute loan to members based on their requested loan,their deposit
-                for (int i = 0; i < loanRequests.size(); i++) {
-                    requestedAmount = loanRequests.get(i);
-                    member_ID = memberIDs.get(i);
-                    int memberIndex = memberIndices.get(i);
-
-                    if (memberIndex >= 0 && memberIndex < memberDeposits.size()) {
-                        int memberDeposit = memberDeposits.get(member_ID);
-
-                        double membershare = (double) requestedAmount / total_loanrequested * available_funds;
-                        double maxloanAllowed = (3.0 / 4) * memberDeposit;
-
-                        double finalLoanAmount = Math.min(requestedAmount, Math.min(membershare, maxloanAllowed));
-                        finalLoanAmounts.add(finalLoanAmount);
-                    } else {
-                        System.out.println("Out of length");
-                    }
-
-                }
-
-                for (int i = 0; i < loanRequests.size(); i++) {
-                    int applicationNo = applicationNos.get(i);
-                    int memberId = memberIDs.get(i);
-                    double finalLoanAmount = finalLoanAmounts.get(i);
-                    int repaymentPeriod = repaymentPeriods.get(i);
-
-                   String updateLoanQuery = "UPDATE loan_application SET amount_granted="+finalLoanAmount+"WHERE application_number="+applicationNo;
-                    statement.executeUpdate(updateLoanQuery);
-                }
-
-                // Close the resources
-                resultSet2.close();
-                resultSet3.close();
-                resultSet4.close();
-
+                             if (memberIndex >= 0 && memberIndex < memberDeposits.size()) {
+                                int memberDeposit = memberDeposits.get(member_ID);
+                                
+                                double membershare = (double) requestedAmount / total_loanrequested * available_funds;
+                                double maxloanAllowed = (3.0 / 4) * memberDeposit;
+                        
+                                double finalLoanAmount = Math.min(requestedAmount, Math.min(membershare, maxloanAllowed));
+                                finalLoanAmounts.add(finalLoanAmount);
+                            } else {
+                               System.out.println("Out of length");
+                            }
+                        
+                        } 
+                        for (int i = 0; i < loanRequests.size(); i++) {
+                            int applicationNo = applicationNos.get(i); 
+                            double finalLoanAmount = finalLoanAmounts.get(i);
+                            String updateLoanQuery = "UPDATE loan_applications SET amount_granted="+finalLoanAmount+"WHERE application_number="+applicationNo;
+                statement.executeUpdate(updateLoanQuery);
             }
+                    
+                    // Close the resources
+            resultSet2.close();
+            resultSet3.close();
+            resultSet4.close();
+                
+            }
+          
 
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
+        }finally {
             // Close the resources
             try {
-                if (statement != null)
-                    statement.close();
-                if (connection != null)
-                    connection.close();
-                if (resultSet2 != null)
-                    resultSet2.close();
-                if (resultSet3 != null)
-                    resultSet3.close();
-                if (resultSet4 != null)
-                    resultSet4.close();
+                if (statement  != null) statement.close();
+                if (connection != null) connection.close();
+                if (resultSet2 != null) resultSet1.close();
+                if (resultSet3 != null) resultSet1.close();
+                if (resultSet4 != null) resultSet1.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-    }
+}
+    
+    
 
     /* loan request status -- taras */
-    public static void checkLoanStatus(PrintWriter out, int applicationNumber) {
+     public static void checkLoanStatus(PrintWriter out, int applicationNumber) {
+        StringBuilder loanStatus = new StringBuilder();
+        DecimalFormat decimalFormat = new DecimalFormat("#.##");
+       
         try {
             Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
             statement = connection.createStatement();
-            ResultSet loan_status = statement.executeQuery("SELECT status FROM loan_application WHERE application_number = "+applicationNumber+"");
+            loan_status = statement.executeQuery("SELECT status,member_number FROM loan_applications WHERE application_number =      "+applicationNumber+"");
             if (loan_status.next()) {
                 String status = loan_status.getString("status");
-                if (status.equals("approved")) {
-                    System.out.println("Congratulations! Your loan application is approved.");
-                    System.out.print("Do you want to accept the loan? (yes/no): ");
-                    try (Scanner Scanner = new Scanner(System.in)) {
-                        String response = Scanner.nextLine();
-                        if (response.equalsIgnoreCase("yes")) {
-                            statement.executeUpdate("UPDATE member SET loan_balance = loan_balance+" +amount_granted  +" WHERE member_number ="+memberID);
-                            out.println("You have accepted the loan. The amount will be transferred to your account.");
-                            statement.executeUpdate("DELETE FROM loan_application WHERE application_number = " + applicationNumber);
-                        } else if (response.equalsIgnoreCase("no")) {
-                            statement.executeUpdate("DELETE FROM loan_application WHERE application_number = " + applicationNumber);
+                memberID = loan_status.getInt("member_number");
+                if (status.equals("Approved")) {
+                    resultSet5 = statement.executeQuery("SELECT amount_granted,repayment_period FROM loan_applications WHERE application_number=" +application_number);
+                    while (resultSet5.next()) {
+                       amount_granted = resultSet5.getInt("amount_granted");
+                       repaymentPeriod = resultSet5.getInt("repayment_period");
+                       double interestRate = 0.05;
+                       
+                       out.println("Congragulations your loan has been approved.Do you accept the loan of:"+amount_granted+ "? (accept/reject):");                                                    
+                        
+                        String response = in.readLine();
+                        if (response.equalsIgnoreCase("accept")) {
+                            statement.executeUpdate("UPDATE members SET loan_balance = loan_balance+" +amount_granted  +" WHERE member_number ="+memberID);
+                              
+                       double powFactor = Math.pow(1 + interestRate, repaymentPeriod);
+                       monthlyPayment = (amount_granted * interestRate * powFactor) / (powFactor - 1);
+
+                       List<String> installmentDates = cal_installment(repaymentPeriod);
+                       
+                       double truncatedMonthlyPayment = Double.parseDouble(decimalFormat.format(monthlyPayment));
+                       for (int i=0; i<repaymentPeriod; i++){
+                        String installmentDate = installmentDates.get(i);
+                        
+                        String insertQuery = "INSERT INTO loan_repayments (application_number, member_number, amount, due_date) " +
+                                             "VALUES (" + applicationNumber + ", " + memberID + ", " + truncatedMonthlyPayment + ", '" + installmentDate + "')";
+                        
+                       statement.executeUpdate(insertQuery);
+                       loanStatus.append("Installment "+(i+1)).append(" Amount: ").append(truncatedMonthlyPayment).append(" Due Date: ").append(installmentDates.get(i)).append("\n");             
+                      }
+                       out.println(loanStatus.toString());
+                         
+                          //  statement.executeUpdate("DELETE FROM loan_applications WHERE application_number = " + applicationNumber);
+                        } else if (response.equalsIgnoreCase("reject")) {
+                          //  statement.executeUpdate("DELETE FROM loan_applications WHERE application_number = " + applicationNumber);
                             out.println("You have rejected the loan.");
                            
                         } else {
-                            // Perform the action to reject the loan
+                            
                             out.println("you have entered an invalid input, please try again.");
                         }
-                    }
+                   }  
+                   
                 } else if (status.equals("pending")) {
                     out.println("Your loan application is still pending. Please wait for further updates.");
                 } else if (status.equals("processing")) {
                     out.println("Your loan application is being processed.");
-                } else {
+                } else if (status.equals("rejected")) {
+                   // statement.executeUpdate("DELETE FROM loan_applications WHERE application_number = " + applicationNumber);
                     out.println("Your loan application is rejected.");
                 }
             } else {
-                   out.println("Loan application not found. Please check your application number.");
+                    out.println("Loan application not found. Please check your application number.");
             }
-            connection.close();
         } catch (Exception e) {
-            out.println("MySQL JDBC Driver not found or other database error occurred.");
             e.printStackTrace();
+        } finally {
+            try {
+            if (resultSet5 != null) { 
+                resultSet5.close();
+                }
+            if (loan_status != null) { 
+                loan_status.close();
+            }
+            if (statement != null) {
+                statement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+            } catch (SQLException ex) {
+               ex.printStackTrace();
+            }
         }
     }
+    public static List<String> cal_installment(double repaymentPeriod) {
+        List<String> installmentDates = new ArrayList<>();
+        LocalDate currentDate = LocalDate.now();
 
+        for (int i=0; i<repaymentPeriod; i++){
+            LocalDate dueDate = currentDate.plusMonths(i+1);
+            installmentDates.add(dueDate.toString());
+        }
+        return installmentDates;
+
+    }
+
+    /*--loan-repayment---Allan */
+    public static void loanRepayment(int memberID, int application_no, double amount) {
+    try {
+         Class.forName("com.mysql.cj.jdbc.Driver");
+         connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+         statement = connection.createStatement();
+            
+        resultSet5 = statement.executeQuery("SELECT id, amount, due_date FROM loan_repayments WHERE member_number = " + memberID + " AND application_number = " + application_no+ " AND status = 'pending'");
+        if (resultSet5.next()) {
+            double repayment_amount = resultSet5.getDouble("amount");
+            LocalDate repayment_date = resultSet5.getDate("due_date").toLocalDate();
+
+            if (amount == repayment_amount && LocalDate.now().equals(repayment_date)) {
+                String updateMemberQuery = "UPDATE members SET loan_balance = loan_balance - " + amount + " WHERE member_number = " + memberID;
+                statement.executeUpdate(updateMemberQuery);
+                out.println("Loan repayment received Successfully");
+
+                DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                String formattedDate = repayment_date.format(dateFormatter);
+                String updateRepaymentQuery = "UPDATE loan_repayments SET status = 'paid' WHERE member_number = " + memberID + " AND application_number = " + application_no + " AND due_date = '" + formattedDate + "'";
+                statement.executeUpdate(updateRepaymentQuery);
+             
+            } else {
+                out.println("Payment not made on the specified date or the amount being repayed does not match the amount Specified.");
+            }
+        } else {
+                out.println("No matching loan repayment records found.");
+        }
+
+        resultSet5.close();
+        statement.close();
+        connection.setAutoCommit(false);
+        connection.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+} 
+
+/*--loan-record----Allan */
+public static void loanRecord(int memberID){
+    try {
+    Class.forName("com.mysql.cj.jdbc.Driver");
+    connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+    statement = connection.createStatement();
+
+    StringBuilder records = new StringBuilder();
+    resultSet6 = statement.executeQuery("SELECT application_number,member_number,amount,due_date,status FROM loan_repayments WHERE member_number = " +memberID); 
+    while(resultSet6.next()){
+        int applicationNo = resultSet6.getInt("application_number");
+        double amount  = resultSet6.getDouble("amount");
+        LocalDate date = resultSet6.getDate("due_date").toLocalDate();
+        String status = resultSet6.getString("status");
+        
+        records.append("Application number:").append(applicationNo).append(" Amount: ").append(amount).append(" Date: ").append(date).append(" status: ").append(status).append("\n");
+       
+    } 
+    out.println(records.toString());   
+
+    
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+       
     public static void main(String[] args) {
         try {
             serverSocket = new ServerSocket(1234);
@@ -465,6 +589,14 @@ public class Server {
                                 out.println("You must log in first to perform this operation.");
                             }
                             break;
+                        case "loanRecord":  
+                            if (isLoggedIn) {
+                               int memberID = Integer.parseInt(command[1]);
+                               loanRecord(memberID);
+                            } else {
+                                out.println("You must log in first to perform this operation.");
+                            }
+                            break;      
                         default:
                             out.println("Invalid command");
                     }
