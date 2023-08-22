@@ -4,10 +4,13 @@ import java.io.*;
 import java.net.*;
 import java.sql.*;
 import java.util.*;
+import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class Server {
     /* database variables */
-     public static final String DB_URL = "jdbc:mysql://localhost:3306/uprise-sacco";
+    public static final String DB_URL = "jdbc:mysql://localhost:3306/sacco";
     public static final String DB_USER = "root";
     public static final String DB_PASSWORD = "";
     private static Connection connection;
@@ -20,12 +23,15 @@ public class Server {
     private static int repayment_period_app;
     private static int requestedAmount = 0;
     private static int amount_granted = 0;
+    private static double repaymentPeriod = 0;
+    private static double monthlyPayment = 0;
     private static int memberDeposit = 0;
     private static int total_deposits = 0; 
     private static  int loanamount = 0;
     private static int application_number = 0;
     private static int total_loanrequested = 0;
     private static int member_ID;
+    private static int memberID;
     private static int accountBalance;
     private static int count = 0;
     private static ResultSet loan_status =null;
@@ -33,8 +39,12 @@ public class Server {
     private static ResultSet resultSet2;
     private static ResultSet resultSet3;
     private static ResultSet resultSet4;
-    private static ResultSet resultSet5 =null;
+    private static ResultSet resultSet5;
+    private static ResultSet resultSet6;
     private static ServerSocket serverSocket;
+    private static BufferedReader in;
+    private static PrintWriter out;
+
 
     /* login --edwin */
     public static boolean login(String username, String password) {
