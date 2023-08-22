@@ -28,6 +28,14 @@ Route::post('/update-amount/{applicationNumber}', 'App\Http\Controllers\PageCont
 
 Route::post('/approve-application/{applicationNumber}', 'App\Http\Controllers\PageController@approveApplication');
 
+Route::post('/reject-application/{applicationNumber}', 'App\Http\Controllers\PageController@rejectApplication');
+
+Route::post('/loan-balance/{loan_id}', 'App\Http\Controllers\PageController@loanBalances');
+
+Route::post('/loan-repayment/{loan_id}', 'App\Http\Controllers\PageController@loanrepayments');
+
+Route::post('/delete-application/{applicationNumber}', 'App\Http\Controllers\PageController@loanDelete');
+
 Route::group(['middleware' => 'auth'], function () {
     Route::resource('user', 'App\Http\Controllers\UserController', ['except' => ['show']]);
     Route::get('profile', ['as' => 'profile.edit', 'uses' => 'App\Http\Controllers\ProfileController@edit']);

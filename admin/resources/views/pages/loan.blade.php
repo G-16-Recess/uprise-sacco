@@ -13,23 +13,19 @@
                             <table class="table table-hover table-striped">
                                 <thead>
                                     <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Salary</th>
-                                    <th>Country</th>
-                                    <th>City</th>
+                                    <th>Application Number</th>
+                                    <th>Member Number</th>
+                                    <th>Amount</th>
+                                    <th>Due Date</th>
                                 </thead>
                                 <tbody>
-                                    @foreach ($members as $member)
+                                    @foreach ($loans as $loan)
                                         <tr>
-                                            <td>{{$member['id']}}</td>
-                                            <td>{{$member['username']}}</td>
-                                            <td>{{$member['phonenumber']}}</td>
-                                            <td>{{$member['accountbalance']}}</td>
-                                            <td>{{$member['loanbalance']}}</td>
-                                            <td>
-                                                <button class="btn btn-success btn-sm mx-2">Edit</button>
-                                                <button class="btn btn-success btn-sm">Approve</button>
-                                            </td>
+                                            <td>{{$loan['id']}}</td>
+                                            <td>{{$loan['application_number']}}</td>
+                                            <td>{{$loan['member_number']}}</td>
+                                            <td>{{$loan['amount']}}</td>
+                                            <td>{{$loan['due_date']}}</td>
                                         </tr>
                                     @endforeach
 

@@ -151,8 +151,7 @@
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
-        });    
-        
+        });  
         $.ajax({
           url : '/update-amount/' + applicationNumber,
           method : 'POST',
@@ -160,7 +159,7 @@
           success : function(response) {
             console.log('New Amount:', newAmount);
             console.log('Application Number:', applicationNumber);
-
+             
             $('#message').text('Amount updated Successfully');
             setTimeout(function()  {
               $('#editModal').modal('hide');
@@ -219,12 +218,82 @@
                 }
             });
         });
-    });   
+    });
+    </script>  
+    <script>
+    $(document).ready(function () {
+        $('.reject-btn').click(function () {
+            var applicationNumber = $(this).data('application-number');
+            var rejectButton = $(this);
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            $.ajax({
+                url: '/reject-application/' + applicationNumber,
+                method: 'POST',
+                success: function (response) {
+                    
+                    // Update the status cell with "Approved" text
+                    var rowToUpdate = $('#dataTable tbody tr[data-application-number="' + applicationNumber + '"]');
+                    rowToUpdate.find('.status').text('Rejected');
+                   
+                    rejectButton.text('Rejected');
+                   
+   
+                   setTimeout(function () {
+                   location.reload();
+                   
+                 }, 3000); 
+                },
+                error: function (xhr, status, error) {
+                    console.log(xhr.responseText); // Log the detailed error response
+                    alert('An error occurred while rejecting the loan application');
+                }
+            });
+        });
+    });    
+</script>
+<script>
+    $(document).ready(function () {
+        $('.delete-btn').click(function () {
+            var applicationNumber = $(this).data('application-number');
+            var deleteButton = $(this);
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            $.ajax({
+                url: '/delete-application/' + applicationNumber,
+                method: 'POST',
+                success: function (response) {
+                    
+                    // Update the status cell with "Approved" text
+                    var rowToUpdate = $('#dataTable tbody tr[data-application-number="' + applicationNumber + '"]');
+                    rowToUpdate.find('.status').text('Deleted');
+                   
+                    deleteButton.text('Deleted');
+                   
+   
+                   setTimeout(function () {
+                   location.reload();
+                   
+                 }, 3000); 
+                },
+                error: function (xhr, status, error) {
+                    console.log(xhr.responseText); // Log the detailed error response
+                    alert('An error occurred while deleting the loan application');
+                }
+            });
+        });
+    });    
 </script>
 
    
     
 </html>
 
- <!--error : function() {
-   alert('An error occured while updating the amount');-->

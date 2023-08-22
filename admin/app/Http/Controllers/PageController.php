@@ -49,17 +49,39 @@ class PageController extends Controller
     } else { 
         return response()->json(['message' => 'Loan application not found'], 404);
     }
+}   
+    public function rejectApplication($applicationNumber) {
+    $loanApplication = Loan_application::where('application_number', $applicationNumber)->first();
+    
+    if ($loanApplication) {
+        $loanApplication->update(['status' => 'rejected']);
+        return response()->json(['message' => 'Loan application rejected successfully']);
+    } else { 
+        return response()->json(['message' => 'Loan application not found'], 404);
+    }
 }
+    public function loanDelete($applicationNumber) {
+    $loanRepayment = Loan_repayment::where('application_number', $applicationNumber)->first();
+    
+    if ($loanRepayment) {
+        $loanRepayment->update(['status' => 'Deleted']);
+        return response()->json(['message' => 'Loan application has been deleted']);
+    } else { 
+        return response()->json(['message' => 'Loan application not found'], 404);
+    }
+}
+
 
    
     public function index($page)
     {
         $members = Member::all();
         $deposits = Deposit::all();
-        $repayments = Loan_repayment::all();
+        $loans = Loan_repayment::where('status','pending')->get();
+        $repayments = Loan_repayment::where('status','paid')->get();
         $loan_requests = Loan_application::where('status','processing')->get();
         if (view()->exists("pages.{$page}")) {
-            return view("pages.{$page}", ['members'=>$members,'deposits'=>$deposits,'repayments'=>$repayments,'loan_applications'=>$loan_requests]);
+            return view("pages.{$page}", ['members'=>$members,'deposits'=>$deposits,'loans'=>$loans,'repayments'=>$repayments,'loan_applications'=>$loan_requests]);
         }
         return abort(404);
     }

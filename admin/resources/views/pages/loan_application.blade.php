@@ -3,6 +3,7 @@
 @section('content')
     <div class="content">
         <div class="container-fluid">
+             
             <div class="row">
                 <div class="col-md-12">
                     <div class="card strpied-tabled-with-hover">
@@ -31,6 +32,7 @@
                                             <td>
                                                 <button class="btn btn-success btn-sm mx-2 edit-btn" data-toggle="modal" data-target="#editModal" data-application-number="{{$loan_application['application_number']}}">Edit</button>
                                                 <button class="btn btn-success btn-sm approve-btn" data-application-number="{{$loan_application['application_number']}}">Approve</button>
+                                                <button class="btn btn-success btn-sm mx-2 reject-btn" data-application-number="{{$loan_application['application_number']}}">Reject</button>
                                             </td>
                                         </tr>
                                     @endforeach

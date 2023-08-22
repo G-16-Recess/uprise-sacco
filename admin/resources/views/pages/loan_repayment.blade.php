@@ -14,26 +14,28 @@
                     @endif
 
                     <div class="card">
-                        <div class="card-body table-full-width table-responsive">
+                            <div class="card-body table-full-width table-responsive">
                             <div class="card-header ">
                                 <button type="button" class="btn btn-sm bg-warning btn-light" data-bs-toggle="modal" data-bs-target="#exampleModal"> Upload repayments</button>
                             </div>
                             <table class="table table-hover table-striped">
                                 <thead>
-                                    <th>Receipt no</th>
+                                    <th>Application Number</th>
+                                    <th>Member Number</th>
                                     <th>Amount</th>
                                     <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Member no</th>
                                 </thead>
                                 <tbody>
                                     @foreach ($repayments as $repayment)
                                         <tr>
-                                            <td>{{$repayment['receipt_number']}}</td>
-                                            <td>{{$repayment['amount']}}</td>
-                                            <td>{{$repayment['date']->format('Y-m-d')}}</td>
-                                            <td>{{$repayment['status']}}</td>
+                                            <td>{{$repayment['application_number']}}</td>
                                             <td>{{$repayment['member_number']}}</td>
+                                            <td>{{$repayment['amount']}}</td>
+                                            <td>{{$repayment['due_date']}}</td>
+                                             <td>
+                                                <button class="btn btn-success btn-sm mx-2 delete-btn" data-application-number="{{$repayment['application_number']}}">Delete</button>
+                                               
+                                            </td>
                                         </tr>
                                     @endforeach 
                                 </tbody>
