@@ -15,6 +15,7 @@
                     <div class="card">
                         <div class="card-header d-flex">
                             <button type="button" class="btn btn-sm bg-warning" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="bi bi-filetype-csv"> </i>Upload members</button> 
+                            <a id="DownloadPDFButton" class="btn btn-success ml-2 btn-sm" href="/export_user_pdf">Export PDF</a>
                         </div>
                         <div class="card-body table-full-width table-responsive">
                             <table class="table table-hover table-striped">

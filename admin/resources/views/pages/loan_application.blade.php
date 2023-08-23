@@ -7,7 +7,7 @@
                 <div class="col-md-12">
                     <div class="card strpied-tabled-with-hover">
                         <div class="card-header ">
-                            
+                            <a id="DownloadPDFButton" class="btn btn-success ml-2 btn-sm" href="/export_LoanRequest_pdf">Export DepositsPDF</a>
                         </div>
                         <div class="card-body table-full-width table-responsive">
                             <table class="table table-hover table-striped">

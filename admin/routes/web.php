@@ -129,3 +129,51 @@ Route::post('/loan_repayment', function () {
     }
 	return redirect()->back()->with('success', 'All loan repayment records imported sucessfully');
 });
+
+Route::get('/users', [MemberController::class, 'list']); // Corrected semicolon
+
+Route::post('/import_user', [MemberController::class, 'import_user'])->name('import_user');
+Route::get('/export_user', [MemberController::class, 'export_user'])->name('export_user');
+Route::get('/export_user_pdf', [MemberController::class, 'export_user_pdf'])->name('export_user_pdf');
+
+Route::get('/table_members', function () {
+    $users = Member::all();
+    return view('exports.users', ['users' => $users]); // Corrected variable name
+})->name('memberroute');
+
+
+Route::get('/deposits', [DepositController::class, 'list']); // Corrected semicolon
+
+Route::post('/import_deposit', [DepositController::class, 'import_deposit'])->name('import_deposit');
+Route::get('/export_deposit', [DepositController::class, 'export_deposit'])->name('export_deposit');
+Route::get('/export_deposit_pdf', [DepositController::class, 'export_deposit_pdf'])->name('export_deposit_pdf');
+
+Route::get('/table_deposits', function () {
+    $deposits = Deposit::all();
+    return view('exports.deposits', ['deposits' => $deposits]); // Corrected variable name
+})->name('depositroute');
+
+
+Route::get('/LoanRequests', [LoanRequestController::class, 'list']); // Corrected semicolon
+
+Route::post('/import_LoanRequest', [LoanRequestController::class, 'import_LoanRequest'])->name('import_LoanRequest');
+Route::get('/export_LoanRequest', [LoanRequestController::class, 'export_LoanRequest'])->name('export_LoanRequest');
+Route::get('/export_LoanRequest_pdf', [LoanRequestController::class, 'export_LoanRequest_pdf'])->name('export_LoanRequest_pdf');
+
+
+Route::get('/request_loans', function () {
+    $LoanRequests = RequestLoan::all();
+    return view('exports.LoanRequests', ['LoanRequests' => $LoanRequests]); // Corrected variable name
+})->name('loanroute');
+// My route
+//Route::get('/loanroute', [LoanRequestController::class, 'index'])->name('loanroute');
+Route::get('/Loans', [LoansController::class, 'list']); 
+
+Route::post('/import_Loan', [LoansController::class, 'import_Loan'])->name('import_Loan');
+Route::get('/export_Loan', [LoansController::class, 'export_Loan'])->name('export_Loan');
+Route::get('/export_Loans_pdf', [LoansController::class, 'export_Loans_pdf'])->name('export_Loans_pdf');
+
+Route::get('/loans', function () {
+    $Loans = Loans::all();
+    return view('exports.Loans', ['Loans' => $Loans]);
+})->name('Loansroute');
