@@ -64,11 +64,13 @@ class PageController extends Controller
     $loanRepayment = Loan_repayment::where('application_number', $applicationNumber)->first();
     
     if ($loanRepayment) {
-        $loanRepayment->update(['status' => 'Deleted']);
+        
+        $loanRepayment->delete();
         return response()->json(['message' => 'Loan application has been deleted']);
     } else { 
         return response()->json(['message' => 'Loan application not found'], 404);
     }
+   
 }
 
 

@@ -13,5 +13,6 @@ class Loan_repayment extends Model
     /* Since member_number is not auto-incrementing, set this to false. */
     public $incrementing = false;
     protected $fillable = ['id', 'application_number', 'member_number', 'amount', 'due_date','status'];
-   
+  
+    public $timestamps = false;
 }

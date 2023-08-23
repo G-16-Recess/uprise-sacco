@@ -269,20 +269,14 @@
 
             $.ajax({
                 url: '/delete-application/' + applicationNumber,
-                method: 'POST',
+                method: 'DELETE',
                 success: function (response) {
+                console.log(response);    
                     
-                    // Update the status cell with "Approved" text
-                    var rowToUpdate = $('#dataTable tbody tr[data-application-number="' + applicationNumber + '"]');
-                    rowToUpdate.find('.status').text('Deleted');
-                   
+                    var rowToDelete = deleteButton.closest('tr');
+                    rowToDelete.remove();
                     deleteButton.text('Deleted');
                    
-   
-                   setTimeout(function () {
-                   location.reload();
-                   
-                 }, 3000); 
                 },
                 error: function (xhr, status, error) {
                     console.log(xhr.responseText); // Log the detailed error response

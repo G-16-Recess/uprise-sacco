@@ -34,7 +34,7 @@ Route::post('/loan-balance/{loan_id}', 'App\Http\Controllers\PageController@loan
 
 Route::post('/loan-repayment/{loan_id}', 'App\Http\Controllers\PageController@loanrepayments');
 
-Route::post('/delete-application/{applicationNumber}', 'App\Http\Controllers\PageController@loanDelete');
+Route::delete('/delete-application/{applicationNumber}', 'App\Http\Controllers\PageController@loanDelete');
 
 Route::group(['middleware' => 'auth'], function () {
     Route::resource('user', 'App\Http\Controllers\UserController', ['except' => ['show']]);
