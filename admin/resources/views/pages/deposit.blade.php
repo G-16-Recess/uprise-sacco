@@ -14,8 +14,8 @@
                     
                     <div class="card">
                         <div class="card-header ">
-                            <button type="button" class="btn btn-sm bg-warning btn-light" data-bs-toggle="modal" data-bs-target="#exampleModal"> Upload deposits</button>
-                            <a id="DownloadPDFButton" class="btn btn-success ml-2 btn-sm" href="/export_deposit_pdf">Export DepositsPDF</a>
+                            <button type="button" class="btn btn-sm bg-warning btn-light" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="bi bi-filetype-csv"> </i>Upload deposits</button>
+                            <a id="DownloadPDFButton" class="btn btn-success ml-2 btn-sm" href="/export_deposit_pdf"><i class="bi bi-file-earmark-pdf-fill"> </i>Export PDF</a>
                         </div>
                         <div class="card-body table-full-width table-responsive">
                             <table class="table table-hover table-striped">

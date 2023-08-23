@@ -7,6 +7,7 @@ use App\Models\Member;
 use App\Models\Deposit;
 use App\Models\Loan_repayment;
 use App\Models\Loan_application;
+use App\Models\Notification;
 
 class PageController extends Controller
 {
@@ -16,16 +17,6 @@ class PageController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    private static function getDeposits () {
-        return [
-            ['receipt_number'=> 101, 'amount' => 23000.00, 'status' => 'Pending', 'date'=>'2023-07-20', 'member_number' => 102],
-            ['receipt_number'=> 201, 'amount' => 23000.00, 'status' => 'Pending', 'date'=>'2023-07-20', 'member_number' => 102],
-            ['receipt_number'=> 301, 'amount' => 23000.00, 'status' => 'Pending', 'date'=>'2023-07-20', 'member_number' => 102],
-            ['receipt_number'=> 401, 'amount' => 23000.00, 'status' => 'Pending', 'date'=>'2023-07-20', 'member_number' => 102],
-            ['receipt_number'=> 501, 'amount' => 23000.00, 'status' => 'Pending', 'date'=>'2023-07-20', 'member_number' => 102]
-        ];
-    }
-    
     public function updateAmount(Request $request, $applicationNumber) {
         
         $newAmount = $request->input('newAmount');
@@ -82,8 +73,9 @@ class PageController extends Controller
         $loans = Loan_repayment::where('status','pending')->get();
         $repayments = Loan_repayment::where('status','paid')->get();
         $loan_requests = Loan_application::where('status','processing')->get();
+        $requests = Notification::where('status','pending')->get();
         if (view()->exists("pages.{$page}")) {
-            return view("pages.{$page}", ['members'=>$members,'deposits'=>$deposits,'loans'=>$loans,'repayments'=>$repayments,'loan_applications'=>$loan_requests]);
+            return view("pages.{$page}", ['members'=>$members,'deposits'=>$deposits,'loans'=>$loans,'repayments'=>$repayments,'loan_applications'=>$loan_requests, 'requests'=>$requests]);
         }
         return abort(404);
     }

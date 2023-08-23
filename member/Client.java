@@ -29,13 +29,19 @@ public class Client {
                 } else if (serverResponse.equals("No records found. Return after a day")) {
                     System.out.println(serverResponse); 
                 } else if (serverResponse.startsWith("Application number:")) {
-        
                     StringBuilder loanRecordResponse = new StringBuilder(serverResponse);
                     while ((serverResponse = serverIn.readLine()) != null && !serverResponse.isEmpty()) {
-                    loanRecordResponse.append("\n").append(serverResponse);
-                }
+                        loanRecordResponse.append("\n").append(serverResponse);
+                    }
                     System.out.println("Server response:\n" + loanRecordResponse.toString());
                    
+                } else if (serverResponse.startsWith("Deposits")) {
+                    StringBuilder checkstatement = new StringBuilder(serverResponse);
+                    while ((serverResponse = serverIn.readLine()) != null && !serverResponse.isEmpty()) {
+                        checkstatement.append("\n").append(serverResponse);
+                    }
+                    System.out.println(checkstatement.toString());
+                    System.out.println(Client.displayMenu());
                 } else if (serverResponse.startsWith("Congragulations your loan has been approved")) {
                     System.out.println(serverResponse);
                     String userResponse = in.readLine();
@@ -43,11 +49,10 @@ public class Client {
                     out.println(userResponse);
 
                    if (userResponse.equalsIgnoreCase("accept")) {
-                   StringBuilder loan_installment = new StringBuilder(serverResponse);
-                   
-                   while ((serverResponse = serverIn.readLine()) !=null && !serverResponse.isEmpty()){
-                   loan_installment.append("\n").append(serverResponse);
-                }
+                        StringBuilder loan_installment = new StringBuilder(serverResponse);
+                        while ((serverResponse = serverIn.readLine()) !=null && !serverResponse.isEmpty()){
+                        loan_installment.append("\n").append(serverResponse);
+                    }
                    System.out.println("Server response:\n" + loan_installment.toString());
                           
                 } else {
@@ -55,8 +60,8 @@ public class Client {
                     System.out.println(Client.displayMenu());
                 }
             }
-                 
-                 System.out.println(Client.displayMenu());
+                System.out.println(serverResponse);
+                System.out.println(Client.displayMenu());
             }
 
             in.close();

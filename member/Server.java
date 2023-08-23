@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter;
 
 public class Server {
     /* database variables */
-    public static final String DB_URL = "jdbc:mysql://localhost:3306/sacco";
+     public static final String DB_URL = "jdbc:mysql://localhost:3306/uprise-sacco";
     public static final String DB_USER = "root";
     public static final String DB_PASSWORD = "";
     private static Connection connection;
@@ -39,8 +39,7 @@ public class Server {
     private static ResultSet resultSet2;
     private static ResultSet resultSet3;
     private static ResultSet resultSet4;
-    private static ResultSet resultSet5;
-    private static ResultSet resultSet6;
+    private static ResultSet resultSet5 =null;
     private static ServerSocket serverSocket;
     private static BufferedReader in;
     private static PrintWriter out;
@@ -50,7 +49,7 @@ public class Server {
     public static boolean login(String username, String password) {
         try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
                 Statement statement = connection.createStatement()) {
-            String query = "SELECT * FROM member WHERE username='" + username + "' AND password='" + password + "'";
+            String query = "SELECT * FROM members WHERE username='" + username + "' AND password='" + password + "'";
             ResultSet resultSet = statement.executeQuery(query);
             return resultSet.next();
         } catch (SQLException e) {
@@ -62,7 +61,7 @@ public class Server {
     public static boolean recoverPassword(String memberNumber, String phoneNumber) {
         try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
                 Statement statement = connection.createStatement()) {
-            String query = "SELECT * FROM member WHERE member_number='" + memberNumber + "' AND phone_number='"
+            String query = "SELECT * FROM members WHERE member_number='" + memberNumber + "' AND phone_number='"
                     + phoneNumber + "'";
             ResultSet resultSet = statement.executeQuery(query);
             return resultSet.next();
@@ -77,28 +76,34 @@ public class Server {
     public static void performDeposit(PrintWriter out, Double amount, String date_Deposited, int receiptno,
             int member_id, Double balance) {
         /* check if the receipt exists */
-        String query = "SELECT * FROM deposit WHERE member_number = " + member_id + " AND receipt_number = " + receiptno
-                + " AND date = '" + date_Deposited + "' AND amount = " + amount + "";
-
+        String query = "SELECT * FROM deposits WHERE member_number = " + member_id + " AND receipt_number = " + receiptno + " AND date = '" + date_Deposited + "' AND amount = " + amount + "";
         try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
                 Statement statement = connection.createStatement()) {
             ResultSet deposit = statement.executeQuery(query);
             if (deposit.next()) {
                 if (deposit.getString("status").equals("pending")) {
                     Double new_balance = balance + amount;
-                    String updatequery = "UPDATE member SET account_balance = " + new_balance
+                    String updatequery = "UPDATE members SET account_balance = " + new_balance
                             + " WHERE member_number = " + member_id + "";
                     statement.executeUpdate(updatequery);
                     /* update the status of the receipt to deposited */
                     out.println("You have deposited UGX. " + amount + " You new balance is UGX. " + new_balance);
-                    String updateStatus = "UPDATE deposit SET status = 'deposited' WHERE member_number = " + member_id
+                    String updateStatus = "UPDATE deposits SET status = 'deposited' WHERE member_number = " + member_id
                             + "";
                     statement.executeUpdate(updateStatus);
                 } else {
                     out.println("Receipt is already deposited.");
                 }
             } else {
-                out.println("Receipt doesn't exist. Try again after 24 hours");
+                Random random = new Random();
+                int referenceNumber = random.nextInt(10000);
+                String category = "deposit";
+                String status = "pending";
+                String requestQuery = "INSERT INTO notifications(reference_number, category, receipt_number, member_number, status) " +
+                "VALUES(" + referenceNumber + ",'" + category + "'," + receiptno + "," + member_id + ",'" + status + "')";
+;
+            statement.executeUpdate(requestQuery);
+                out.println("Receipt doesn't exist. Try again after 24 hours. Reference Number is: "+referenceNumber+" for follow up");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -107,39 +112,32 @@ public class Server {
     }
     /* checkStatement --pius */
     public static void checkstatement(int userId, String datefrom, String dateto, PrintWriter out) {
+        StringBuilder checkstatement = new StringBuilder("Deposits");
         try {
             Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-            String deposit_query = "SELECT * FROM deposit WHERE date BETWEEN '" + datefrom + "' AND '" + dateto + "' AND member_number = " + userId;
-            String loan_repayment_query = "SELECT * FROM loan_repayment WHERE date BETWEEN '" + datefrom + "' AND '" + dateto + "' AND member_number = " + userId +"";
-            String loan_progress_query = "SELECT * FROM loan WHERE member_number = "+userId+"";
-
+            String deposit_query = "SELECT * FROM deposits WHERE date BETWEEN '" + datefrom + "' AND '" + dateto + "' AND member_number = " + userId;
+            String loan_repayment_query = "SELECT * FROM loan_repayments WHERE date BETWEEN '" + datefrom + "' AND '" + dateto + "' AND member_number = " + userId +"";
+            /* String loan_progress_query = "SELECT * FROM loan WHERE member_number = "+userId+"";*/
             /* 
             String percentagequery = "SELECT member_number, COUNT(*) AS depositsTimes, SUM(amount) AS totalAmountDeposited " + "FROM deposit " + "GROUP BY member_number ";
             String loanpercentagequery = "SELECT member_number, COUNT(*) AS loandepositTimes, SUM(amount) AS loanamountdeposited " + 
            "FROM loan " +
            "GROUP BY member_number";
            */
-
-           Statement statement = connection.createStatement();
-           ResultSet depositcontribution = statement.executeQuery(deposit_query);
+            Statement statement = connection.createStatement();
+            ResultSet depositcontribution = statement.executeQuery(deposit_query);
             while (depositcontribution.next()) {
-                String depositDate = depositcontribution.getString("depositDate");
-                int amount = depositcontribution.getInt("amount");
-                int totalAmount = 0;
-                totalAmount = 0 + amount;
-                out.println("Deposit Date: " + depositDate +"\n");
-                out.println("Amount: " + amount + "\n");
-                out.println("contribution is: " + totalAmount + "\n");
+                String depositDate = depositcontribution.getString("date");
+                double amount = depositcontribution.getDouble("amount");
+                checkstatement.append("Deposits\nDate: "+depositDate+"\nAmount: "+amount);
             }
-
             ResultSet loancontribution = statement.executeQuery(loan_repayment_query);
-
             while(loancontribution.next()) {
-                String loandepositDate = loancontribution.getString("loandepositdate");
-                int amountdeposited = loancontribution.getInt("amountdeposited");
-                out.println("loan Datedeposit: " + loandepositDate + "\n");
-                out.println("amountdeposited: " + amountdeposited + "\n");
+                String loandepositDate = loancontribution.getString("date");
+                double amountdeposited = loancontribution.getDouble("amount");
+                checkstatement.append("\nLoan repayments\nDate: "+loandepositDate+"\nAmount: "+amountdeposited);
             }
+            out.println(checkstatement.toString());
             /* 
             ResultSet percentageResult = statement.executeQuery(percentagequery);
                 while(percentageResult.next()){
@@ -154,7 +152,7 @@ public class Server {
                 }
             }
             */
-           ResultSet loanPercentageResult = statement.executeQuery(loanpercentagequery);
+           /* ResultSet loanPercentageResult = statement.executeQuery(loanpercentagequery);
             while(loanPercentageResult.next()){
                 int member_ID= loanPercentageResult.getInt ("member_ID");
                 if(userId == member_ID){
@@ -169,11 +167,11 @@ public class Server {
                     System.out.println();
 
                 }
-            }
+            } */
            depositcontribution.close();
            loancontribution.close();
            /*percentageResult.close();*/
-           loanPercentageResult.close();
+           /* loanPercentageResult.close();*/
            statement.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -181,17 +179,13 @@ public class Server {
         }
     }
     /* loan request -- allan */
-       public static int requestLoan(int memberID, int amount, int repayment_period) {
+       public static int requestLoan(int memberID, double amount, int repayment_period) {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
             statement = connection.createStatement();
-            
-            
             Random random = new Random();
             application_no = 1000 + random.nextInt(9999);
-
-            
             String sql = "INSERT INTO loan_applications(application_number,member_number, amount, repayment_period) VALUES("
                     + application_no + "," + memberID + "," + amount + "," + repayment_period + ")";
             statement.executeUpdate(sql);
@@ -244,9 +238,6 @@ public class Server {
                 List<Integer> repaymentPeriods = new ArrayList<>();
                 List<Double> finalLoanAmounts = new ArrayList<>();
                 List<Integer> applicationNos = new ArrayList<>();
-               
-               
-                
                 
                 while (resultSet3.next()) {
                     loanamount = resultSet3.getInt("amount");
@@ -329,7 +320,7 @@ public class Server {
     
 
     /* loan request status -- taras */
-     public static void checkLoanStatus(PrintWriter out, int applicationNumber) {
+     public static void checkLoanStatus(PrintWriter out, int applicationNumber, BufferedReader in) {
         StringBuilder loanStatus = new StringBuilder();
         DecimalFormat decimalFormat = new DecimalFormat("#.##");
        
@@ -339,12 +330,12 @@ public class Server {
             loan_status = statement.executeQuery("SELECT status,member_number FROM loan_applications WHERE application_number =      "+applicationNumber+"");
             if (loan_status.next()) {
                 String status = loan_status.getString("status");
-                memberID = loan_status.getInt("member_number");
+                int memberID = loan_status.getInt("member_number");
                 if (status.equals("Approved")) {
                     resultSet5 = statement.executeQuery("SELECT amount_granted,repayment_period FROM loan_applications WHERE application_number=" +application_number);
                     while (resultSet5.next()) {
                        amount_granted = resultSet5.getInt("amount_granted");
-                       repaymentPeriod = resultSet5.getInt("repayment_period");
+                       int repaymentPeriod = resultSet5.getInt("repayment_period");
                        double interestRate = 0.05;
                        
                        out.println("Congragulations your loan has been approved.Do you accept the loan of:"+amount_granted+ "? (accept/reject):");                                                    
@@ -354,7 +345,7 @@ public class Server {
                             statement.executeUpdate("UPDATE members SET loan_balance = loan_balance+" +amount_granted  +" WHERE member_number ="+memberID);
                               
                        double powFactor = Math.pow(1 + interestRate, repaymentPeriod);
-                       monthlyPayment = (amount_granted * interestRate * powFactor) / (powFactor - 1);
+                       double monthlyPayment = (amount_granted * interestRate * powFactor) / (powFactor - 1);
 
                        List<String> installmentDates = cal_installment(repaymentPeriod);
                        
@@ -426,7 +417,7 @@ public class Server {
     }
 
     /*--loan-repayment---Allan */
-    public static void loanRepayment(int memberID, int application_no, double amount) {
+    public static void loanRepayment(int memberID, int application_no, double amount, PrintWriter out) {
     try {
          Class.forName("com.mysql.cj.jdbc.Driver");
          connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
@@ -464,7 +455,7 @@ public class Server {
 } 
 
 /*--loan-record----Allan */
-public static void loanRecord(int memberID){
+public static void loanRecord(int memberID, PrintWriter out){
     try {
     Class.forName("com.mysql.cj.jdbc.Driver");
     connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
@@ -477,13 +468,11 @@ public static void loanRecord(int memberID){
         double amount  = resultSet6.getDouble("amount");
         LocalDate date = resultSet6.getDate("due_date").toLocalDate();
         String status = resultSet6.getString("status");
-        
         records.append("Application number:").append(applicationNo).append(" Amount: ").append(amount).append(" Date: ").append(date).append(" status: ").append(status).append("\n");
        
     } 
     out.println(records.toString());   
 
-    
     } catch (Exception e) {
         e.printStackTrace();
     }
@@ -493,13 +482,12 @@ public static void loanRecord(int memberID){
         try {
             serverSocket = new ServerSocket(1234);
             System.out.println("Server is running. Waiting for a client to connect...");
-
+            Socket clientSocket = null;
             clientSocket = serverSocket.accept();
             System.out.println("Client connected.");
 
             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-            
             String inputLine;
             boolean isLoggedIn = false;
             int member_id = 0;
@@ -518,7 +506,7 @@ public static void loanRecord(int memberID){
 
                                 try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
                                         Statement statement = connection.createStatement()) {
-                                    String query = "SELECT * FROM member WHERE username='" + command[1]
+                                    String query = "SELECT * FROM members WHERE username='" + command[1]
                                             + "' AND password='" + command[2] + "'";
                                     ResultSet resultSet = statement.executeQuery(query);
                                     while (resultSet.next()) {
@@ -542,7 +530,7 @@ public static void loanRecord(int memberID){
                                     try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER,
                                             DB_PASSWORD);
                                             Statement statement = connection.createStatement()) {
-                                        String query = "SELECT * FROM member WHERE member_number='" + command[1]
+                                        String query = "SELECT * FROM members WHERE member_number='" + command[1]
                                                 + "' AND phone_number='" + command[2] + "'";
                                         ResultSet resultSet = statement.executeQuery(query);
                                         while (resultSet.next()) {
@@ -555,7 +543,20 @@ public static void loanRecord(int memberID){
                                     }
 
                                 } else {
-                                    out.println("No records found. Return after a day");
+                                    Random random1 = new Random();
+                                    int referenceNumber = random1.nextInt(10000);
+                                    String category = "login";
+                                    String status = "pending";
+                                    try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER,
+                                            DB_PASSWORD);
+                                            Statement statement = connection.createStatement()) {
+                                                String requestQuery = "INSERT INTO notifications(reference_number, category, member_number, status) " +
+                                                "VALUES(" + referenceNumber + ",'" + category + "'," + command[1] + ",'" + status + "')";;
+                                            statement.executeUpdate(requestQuery);
+                                    } catch (SQLException e) {
+                                        e.printStackTrace();
+                                    }
+                                    out.println("No records found. Return after a day. Your reference is : "+referenceNumber+" for follow up");
                                 }
                             } else {
                                 out.println("You are already logged in.");
@@ -594,7 +595,7 @@ public static void loanRecord(int memberID){
                         case "LoanRequestStatus":
                             if (isLoggedIn) {
                                 int application_number = Integer.parseInt(command[1]);
-                                checkLoanStatus(out, application_number);
+                                checkLoanStatus(out, application_number, in);
                             } else {
                                 out.println("You must log in first to perform this operation.");
                             }
@@ -602,7 +603,7 @@ public static void loanRecord(int memberID){
                         case "loanRecord":  
                             if (isLoggedIn) {
                                int memberID = Integer.parseInt(command[1]);
-                               loanRecord(memberID);
+                               loanRecord(memberID, out);
                             } else {
                                 out.println("You must log in first to perform this operation.");
                             }
