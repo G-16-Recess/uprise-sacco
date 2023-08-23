@@ -40,6 +40,7 @@ public class Server {
     private static ResultSet resultSet3;
     private static ResultSet resultSet4;
     private static ResultSet resultSet5 =null;
+    private static ResultSet resultSet6;
     private static ServerSocket serverSocket;
     private static BufferedReader in;
     private static PrintWriter out;
